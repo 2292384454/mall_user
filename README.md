@@ -12,3 +12,8 @@ Spring Security默认实现 csrf 防御，不过是基于 model 的，本项目�
 ![商品购买流程.png](商品购买流程.png)
 
 # 三、Todo List
+
+- session 放进 redis 中实现分布式登录管理（基于spring-session）
+- 负载均衡，解决 Tomcat 瓶颈（用 nginx）
+- redis 集群化，提高系统可用性和并发能力
+- 考虑分布式事务回滚，解决 “商品数量扣减成功后服务端崩溃导致订单丢失” 的问题（2PC，Two-phase commit protocol，二阶段提交，spring bot中的 JTA + Atomikos）。
