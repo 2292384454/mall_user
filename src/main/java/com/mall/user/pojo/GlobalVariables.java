@@ -50,6 +50,7 @@ public class GlobalVariables {
         // 7
         orderStatus.add("管理员取消");
         /* END: 订单状态 */
+
         log.info("订单状态表加载完成，内容： " + orderStatus);
         /* 用户状态表 */
         userStatus.add("停用");

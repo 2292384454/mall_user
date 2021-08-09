@@ -1,11 +1,12 @@
 #自定义参数
 com:
   mall:
-    admin:
+    user:
       #每页显示的元素条数
       per-page-rows: 10
       #自定义静态资源路径，主要用来存放商品图片
       staticPath: D:\Codes\mall\static\
+      cartCapacity: 100
 
 spring:
   datasource:
@@ -22,9 +23,22 @@ spring:
   web:
     resources:
       static-locations: classpath:/static/,file:${com.mall.admin.staticPath}
+  redis:
+    # host: '47.96.122.105'
+    host: 'localhost'
+    port: 6379
+    database: 2
+    # password: 'admin123456'
+    timeout: 500ms
+    jedis:
+      pool:
+        max-active: 1000
+        # 等待可用连接的最大等待时间，-1为无限制
+        max-wait: -1
+        max-idle: 500
 
 server:
   servlet:
     session:
       #session 过期时间，单位：秒
-      timeout: 180
+      timeout: 1800s

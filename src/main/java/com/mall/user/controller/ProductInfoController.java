@@ -34,7 +34,7 @@ public class ProductInfoController {
     @RequestMapping(value = "/getProduct", method = {RequestMethod.GET, RequestMethod.POST})
     @ResponseBody
     public List<ProductInfo> getProduct() {
-        return productInfoService.getProductInfo();
+        return productInfoService.getOnSaleProduct();
     }
 
     @RequestMapping("/getProductById/{id}")

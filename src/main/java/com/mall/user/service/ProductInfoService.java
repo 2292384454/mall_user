@@ -43,6 +43,4 @@ public interface ProductInfoService {
      * 保存商品到数据库
      */
     void save(ProductInfo productInfo);
-
-    List<ProductInfo> getProductInfo();
 }

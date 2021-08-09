@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 /**
  * Spring Security配置类.
@@ -79,14 +80,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 })
 
                 .and()
+                .sessionManagement()
+
+                .and()
                 .headers()
                 .frameOptions()
                 .sameOrigin()
 
-                //TODO:关掉CSRF验证(防止跨站请求伪造攻击)进行测试，正式上线时注释掉
+                // 开启 csrf 防御，采用 cookie 的形式向客户端发送 XSRF-TOKEN
+                // vue 中会自动将 XSRF-TOKEN 设置成 http header 的 X-XSRF-TOKEN 字段
                 .and()
                 .csrf()
-                .disable();
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
 
     }
 }

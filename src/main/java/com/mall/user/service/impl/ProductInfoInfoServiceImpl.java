@@ -1,15 +1,18 @@
 package com.mall.user.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.mall.user.pojo.OtherConfig;
 import com.mall.user.pojo.ProductInfo;
 import com.mall.user.repository.ProductInfoRepository;
 import com.mall.user.service.ProductInfoService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,14 +27,17 @@ import java.util.List;
  * @author KevinHwang
  */
 @Service
+@Log4j2
 public class ProductInfoInfoServiceImpl implements ProductInfoService {
     private final ProductInfoRepository productInfoRepository;
     private final OtherConfig otherConfig;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
-    public ProductInfoInfoServiceImpl(ProductInfoRepository productInfoRepository, OtherConfig otherConfig) {
-        this.productInfoRepository = productInfoRepository;
+    public ProductInfoInfoServiceImpl(OtherConfig otherConfig, ProductInfoRepository productInfoRepository, RedisTemplate<String, Object> redisTemplate) {
         this.otherConfig = otherConfig;
+        this.productInfoRepository = productInfoRepository;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -60,16 +66,21 @@ public class ProductInfoInfoServiceImpl implements ProductInfoService {
 
     @Override
     public ProductInfo getProductInfoById(Long id) {
+        // 先查询redis
+        String key = "prod" + id;
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(key))) {
+            JSONObject jsonObject = (JSONObject) redisTemplate.opsForValue().get(key);
+            if (jsonObject != null) {
+                return jsonObject.toJavaObject(ProductInfo.class);
+            } else {
+                return productInfoRepository.findById(id).orElse(null);
+            }
+        }
         return productInfoRepository.findById(id).orElse(null);
     }
 
     @Override
     public void save(ProductInfo productInfo) {
         productInfoRepository.save(productInfo);
-    }
-
-    @Override
-    public List<ProductInfo> getProductInfo() {
-        return productInfoRepository.findAll();
     }
 }

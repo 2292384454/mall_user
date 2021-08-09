@@ -15,7 +15,7 @@ import javax.validation.constraints.Min;
  * @author KevinHwang
  */
 @Component
-@ConfigurationProperties(prefix = "com.mall.admin")
+@ConfigurationProperties(prefix = "com.mall.user")
 @Data
 public class OtherConfig {
     /**
@@ -29,4 +29,9 @@ public class OtherConfig {
      * 静态资源目录
      */
     private String staticPath = "/";
+
+    /**
+     * 用户购物车容量（指能选择的产品种类数量之和）
+     */
+    private int cartCapacity = 100;
 }

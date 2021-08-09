@@ -2,15 +2,14 @@ package com.mall.user.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mall.user.pojo.CartItem;
-import com.mall.user.pojo.OrderDetail;
-import com.mall.user.pojo.OrderInfo;
-import com.mall.user.pojo.ProductInfo;
+import com.mall.user.pojo.*;
 import com.mall.user.service.OrderInfoService;
 import com.mall.user.service.ProductInfoService;
 import com.mall.user.service.UserInfoService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,12 +37,14 @@ public class OrderInfoController {
     private final UserInfoService userInfoService;
     private final OrderInfoService orderInfoService;
     private final ProductInfoService productInfoService;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
-    public OrderInfoController(UserInfoService userInfoService, OrderInfoService orderInfoService, ProductInfoService productInfoService) {
+    public OrderInfoController(UserInfoService userInfoService, OrderInfoService orderInfoService, ProductInfoService productInfoService, RedisTemplate<String, Object> redisTemplate) {
         this.userInfoService = userInfoService;
         this.orderInfoService = orderInfoService;
         this.productInfoService = productInfoService;
+        this.redisTemplate = redisTemplate;
     }
 
     @RequestMapping(value = "/handlerOrder", method = {RequestMethod.GET, RequestMethod.POST})
@@ -55,7 +56,8 @@ public class OrderInfoController {
         List<CartItem> ciList = mapper.readValue(cart, new TypeReference<ArrayList<CartItem>>() {
         });
         OrderInfo oi = new OrderInfo();
-        oi.setUserInfo(userInfoService.findByUserName(authentication.getName()));
+        UserInfo user = userInfoService.findByUserName(authentication.getName());
+        oi.setUserInfo(user);
         // 订单状态:已提交
         oi.setStatus(0);
         oi.setOrderTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
@@ -73,6 +75,10 @@ public class OrderInfoController {
             od.setProductInfo(productInfoService.getProductInfoById(ci.getId()));
             od.setNum(ci.getCount());
             orderDetails.add(od);
+            //从redis购物车中删除已下单的商品
+            String cartKey = "cart:" + user.getId();
+            HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
+            hashOps.delete(cartKey, String.valueOf(ci.getId()));
         }
         //保存订单
         oi.setOrderDetails(orderDetails);
