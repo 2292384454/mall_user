@@ -5,7 +5,7 @@
 
 ## 2.csrf防御
 
-Spring Security默认实现 csrf 防御，不过是基于 model 的，本项目为前后端分离的项目，需要设置成基于 cookie 的。即对于每一个 POST 请求，不论成功与否，都向前端通过 Set-Cookie: XSRF-TOKEN=6f13cec0-d27a-41e1-94cf-085e7b3f59a7 向前端返回一个 XSRF-TOKEN ，对于后续的访问，如果是 POST 请求，前端就把这个 XSRF-TOKEN 放进请求头里。而后端对于所有的 POST 请求，后端会去 POST 报文和报文头找 XSRF-TOKEN ，找得到并且匹配得上才允许访问，否则 500 状态码拒绝访问。
+Spring Security默认实现 csrf 防御，不过是基于 model 的，本项目为前后端分离的项目，需要设置成基于 cookie 的。即对于每一个 POST 请求，不论成功与否，都向前端通过 Set-Cookie: XSRF-TOKEN=XXXX 向前端返回一个 XSRF-TOKEN ，对于后续的访问，如果是 POST 请求，前端就把这个 XSRF-TOKEN 放进请求头里。而后端对于所有的 POST 请求，后端会去 POST 报文和报文头找 XSRF-TOKEN ，找得到并且匹配得上才允许访问，否则 500 状态码拒绝访问。
  
 # 二、商品购买流程
 
